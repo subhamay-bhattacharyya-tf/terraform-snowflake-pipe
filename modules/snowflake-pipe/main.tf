@@ -1,6 +1,7 @@
 # Snowflake Pipe Resource
 # Creates and manages one or more Snowflake pipes based on the pipe_configs map
 
+
 resource "snowflake_pipe" "this" {
   for_each = var.pipe_configs
 
