@@ -24,4 +24,6 @@ provider "snowflake" {
   role              = var.snowflake_role
   authenticator     = "SNOWFLAKE_JWT"
   private_key       = var.snowflake_private_key
+
+  preview_features_enabled = ["snowflake_pipe_resource"]
 }
