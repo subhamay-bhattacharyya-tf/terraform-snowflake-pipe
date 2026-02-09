@@ -14,6 +14,7 @@ import (
 )
 
 // TestSinglePipe tests creating a single pipe via the module
+// Note: This test requires an external stage. Internal stages do not support pipes.
 func TestSinglePipe(t *testing.T) {
 	t.Parallel()
 
@@ -25,17 +26,21 @@ func TestSinglePipe(t *testing.T) {
 	stageName := "TEST_STAGE"
 	pipeName := fmt.Sprintf("TT_PIPE_%s", unique)
 
-	// Setup: Create database, schema, table, and stage
+	// Setup: Create database, schema, table, and external stage
 	db := openSnowflake(t)
 	createTestDatabase(t, db, dbName)
 	createTestSchema(t, db, dbName, schemaName)
 	createTestTable(t, db, dbName, schemaName, tableName)
-	createTestStage(t, db, dbName, schemaName, stageName)
+	
+	// Create an external stage using a public S3 bucket for testing
+	// This uses Snowflake's sample data bucket which is publicly accessible
+	createExternalStage(t, db, dbName, schemaName, stageName)
 	_ = db.Close()
 
 	tfDir := "../examples/single-pipe"
 
-	copyStatement := fmt.Sprintf("COPY INTO %s.%s.%s FROM @%s.%s.%s", dbName, schemaName, tableName, dbName, schemaName, stageName)
+	copyStatement := fmt.Sprintf("COPY INTO %s.%s.%s FROM @%s.%s.%s FILE_FORMAT = (TYPE = CSV)", 
+		dbName, schemaName, tableName, dbName, schemaName, stageName)
 
 	pipeConfigs := map[string]interface{}{
 		"test_pipe": map[string]interface{}{

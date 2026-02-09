@@ -176,6 +176,17 @@ func createTestStage(t *testing.T, db *sql.DB, dbName, schemaName, stageName str
 	require.NoError(t, err, "Failed to create test stage")
 }
 
+func createExternalStage(t *testing.T, db *sql.DB, dbName, schemaName, stageName string) {
+	t.Helper()
+	// Create an external stage pointing to a public S3 location
+	// Using Snowflake's publicly accessible sample data bucket
+	query := fmt.Sprintf(`CREATE OR REPLACE STAGE %s.%s.%s 
+		URL = 's3://snowflake-workshop-lab/weather-nyc/'
+		FILE_FORMAT = (TYPE = CSV)`, dbName, schemaName, stageName)
+	_, err := db.Exec(query)
+	require.NoError(t, err, "Failed to create external test stage")
+}
+
 func dropTestDatabase(t *testing.T, db *sql.DB, dbName string) {
 	t.Helper()
 	_, err := db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", dbName))

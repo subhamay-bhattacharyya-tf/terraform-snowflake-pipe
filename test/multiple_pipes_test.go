@@ -26,16 +26,16 @@ func TestMultiplePipes(t *testing.T) {
 	pipe2Name := fmt.Sprintf("TT_CUSTOMERS_%s", unique)
 	pipe3Name := fmt.Sprintf("TT_EVENTS_%s", unique)
 
-	// Setup: Create database, schema, tables, and stages
+	// Setup: Create database, schema, tables, and external stages
 	db := openSnowflake(t)
 	createTestDatabase(t, db, dbName)
 	createTestSchema(t, db, dbName, schemaName)
 	createTestTable(t, db, dbName, schemaName, "ORDERS")
 	createTestTable(t, db, dbName, schemaName, "CUSTOMERS")
 	createTestTable(t, db, dbName, schemaName, "EVENTS")
-	createTestStage(t, db, dbName, schemaName, "ORDERS_STAGE")
-	createTestStage(t, db, dbName, schemaName, "CUSTOMERS_STAGE")
-	createTestStage(t, db, dbName, schemaName, "EVENTS_STAGE")
+	createExternalStage(t, db, dbName, schemaName, "ORDERS_STAGE")
+	createExternalStage(t, db, dbName, schemaName, "CUSTOMERS_STAGE")
+	createExternalStage(t, db, dbName, schemaName, "EVENTS_STAGE")
 	_ = db.Close()
 
 	tfDir := "../examples/multiple-pipes"
@@ -45,7 +45,7 @@ func TestMultiplePipes(t *testing.T) {
 			"database":       dbName,
 			"schema":         schemaName,
 			"name":           pipe1Name,
-			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.ORDERS FROM @%s.%s.ORDERS_STAGE", dbName, schemaName, dbName, schemaName),
+			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.ORDERS FROM @%s.%s.ORDERS_STAGE FILE_FORMAT = (TYPE = CSV)", dbName, schemaName, dbName, schemaName),
 			"auto_ingest":    false,
 			"comment":        "Terratest orders pipe",
 		},
@@ -53,7 +53,7 @@ func TestMultiplePipes(t *testing.T) {
 			"database":       dbName,
 			"schema":         schemaName,
 			"name":           pipe2Name,
-			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.CUSTOMERS FROM @%s.%s.CUSTOMERS_STAGE", dbName, schemaName, dbName, schemaName),
+			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.CUSTOMERS FROM @%s.%s.CUSTOMERS_STAGE FILE_FORMAT = (TYPE = CSV)", dbName, schemaName, dbName, schemaName),
 			"auto_ingest":    false,
 			"comment":        "Terratest customers pipe",
 		},
@@ -61,7 +61,7 @@ func TestMultiplePipes(t *testing.T) {
 			"database":       dbName,
 			"schema":         schemaName,
 			"name":           pipe3Name,
-			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.EVENTS FROM @%s.%s.EVENTS_STAGE", dbName, schemaName, dbName, schemaName),
+			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.EVENTS FROM @%s.%s.EVENTS_STAGE FILE_FORMAT = (TYPE = CSV)", dbName, schemaName, dbName, schemaName),
 			"auto_ingest":    false,
 			"comment":        "Terratest events pipe",
 		},
