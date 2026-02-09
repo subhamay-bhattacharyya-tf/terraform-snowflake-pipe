@@ -106,6 +106,14 @@ module "pipe" {
 | terraform | >= 1.3.0 |
 | snowflake | >= 0.87.0 |
 
+> **Note**: The `snowflake_pipe` resource is currently a preview feature. You must enable it in your provider configuration:
+> ```hcl
+> provider "snowflake" {
+>   # ... other configuration ...
+>   preview_features_enabled = ["snowflake_pipe_resource"]
+> }
+> ```
+
 ## Providers
 
 | Name | Version |
