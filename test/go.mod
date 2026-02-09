@@ -1,4 +1,4 @@
-module github.com/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse/test
+module github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe/test
 
 go 1.21
 
