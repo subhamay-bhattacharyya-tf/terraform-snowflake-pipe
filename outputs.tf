@@ -1,3 +1,12 @@
+# -----------------------------------------------------------------------------
+# Terraform Snowflake Pipe Module
+# -----------------------------------------------------------------------------
+# This module creates and manages Snowflake pipes using a map-based
+# configuration. It supports creating single or multiple pipes with
+# auto-ingest, AWS SNS integration, error integration, and storage
+# integration settings in a single module call.
+# -----------------------------------------------------------------------------
+
 output "pipe_names" {
   description = "The names of the created pipes."
   value       = { for k, v in snowflake_pipe.this : k => v.name }

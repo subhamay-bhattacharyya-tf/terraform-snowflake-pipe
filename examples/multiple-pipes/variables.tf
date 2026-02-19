@@ -1,3 +1,10 @@
+# -----------------------------------------------------------------------------
+# Terraform Snowflake Pipe Module - Multiple Pipes Example
+# -----------------------------------------------------------------------------
+# This example demonstrates how to use the snowflake-pipe module
+# to create multiple Snowflake pipes using a map of configurations.
+# -----------------------------------------------------------------------------
+
 variable "pipe_configs" {
   description = "Map of configuration objects for Snowflake pipes"
   type = map(object({

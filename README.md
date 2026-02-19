@@ -19,7 +19,7 @@ A Terraform module for creating and managing Snowflake pipes using a map of conf
 
 ```hcl
 module "pipe" {
-  source = "path/to/modules/snowflake-pipe"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
 
   pipe_configs = {
     "my_pipe" = {
@@ -68,7 +68,7 @@ locals {
 }
 
 module "pipes" {
-  source = "path/to/modules/snowflake-pipe"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
 
   pipe_configs = local.pipes
 }
@@ -78,7 +78,7 @@ module "pipes" {
 
 ```hcl
 module "pipe" {
-  source = "path/to/modules/snowflake-pipe"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
 
   pipe_configs = {
     "auto_ingest_pipe" = {
@@ -105,14 +105,6 @@ module "pipe" {
 |------|---------|
 | terraform | >= 1.3.0 |
 | snowflake | >= 0.87.0 |
-
-> **Note**: The `snowflake_pipe` resource is currently a preview feature. You must enable it in your provider configuration:
-> ```hcl
-> provider "snowflake" {
->   # ... other configuration ...
->   preview_features_enabled = ["snowflake_pipe_resource"]
-> }
-> ```
 
 ## Providers
 
@@ -180,8 +172,8 @@ Required environment variables for testing:
 ## CI/CD Configuration
 
 The CI workflow runs on:
-- Push to `main`, `feature/**`, and `bug/**` branches (when `modules/**` changes)
-- Pull requests to `main` (when `modules/**` changes)
+- Push to `main`, `feature/**`, and `bug/**` branches (when `*.tf`, `examples/**`, or `test/**` changes)
+- Pull requests to `main` (when `*.tf`, `examples/**`, or `test/**` changes)
 - Manual workflow dispatch
 
 The workflow includes:

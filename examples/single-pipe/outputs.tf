@@ -1,3 +1,10 @@
+# -----------------------------------------------------------------------------
+# Terraform Snowflake Pipe Module - Single Pipe Example
+# -----------------------------------------------------------------------------
+# This example demonstrates how to use the snowflake-pipe module
+# to create a single Snowflake pipe.
+# -----------------------------------------------------------------------------
+
 output "pipe_names" {
   description = "The names of the created pipes"
   value       = module.pipe.pipe_names

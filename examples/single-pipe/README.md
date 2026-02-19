@@ -1,4 +1,4 @@
-# Basic Example - Single Snowflake Pipe
+# Single Pipe Example
 
 This example demonstrates how to create a single Snowflake pipe using the `snowflake-pipe` module.
 
@@ -6,7 +6,7 @@ This example demonstrates how to create a single Snowflake pipe using the `snowf
 
 ```hcl
 module "pipe" {
-  source = "../../modules/snowflake-pipe"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
 
   pipe_configs = {
     "my_pipe" = {
@@ -23,15 +23,27 @@ module "pipe" {
 
 ## Requirements
 
-- Terraform >= 1.3.0
-- Snowflake provider >= 0.87.0
-- Existing database, schema, stage, and target table in Snowflake
+| Name | Version |
+|------|---------|
+| terraform | >= 1.3.0 |
+| snowflake | >= 1.0.0 |
+
+## Prerequisites
+
+- Existing database and schema in Snowflake
+- Existing external stage pointing to cloud storage (S3, Azure Blob, GCS)
+- Target table with schema matching the staged files
 
 ## Inputs
 
 | Name | Description | Type | Required |
 |------|-------------|------|----------|
-| pipe_configs | Map of pipe configuration objects | map(object) | yes |
+| pipe_configs | Map of pipe configuration objects | `map(object)` | yes |
+| snowflake_organization_name | Snowflake organization name | `string` | yes |
+| snowflake_account_name | Snowflake account name | `string` | yes |
+| snowflake_user | Snowflake username | `string` | yes |
+| snowflake_role | Snowflake role | `string` | no |
+| snowflake_private_key | Snowflake private key for key-pair authentication | `string` | yes |
 
 ## Outputs
 
@@ -41,3 +53,19 @@ module "pipe" {
 | pipe_fully_qualified_names | The fully qualified names of the pipes |
 | pipe_notification_channels | The notification channels for the pipes |
 | pipe_owners | The owners of the pipes |
+
+## Running This Example
+
+```bash
+# Set environment variables
+export TF_VAR_snowflake_organization_name="your_org"
+export TF_VAR_snowflake_account_name="your_account"
+export TF_VAR_snowflake_user="your_user"
+export TF_VAR_snowflake_role="SYSADMIN"
+export TF_VAR_snowflake_private_key="$(cat ~/.snowflake/rsa_key.p8)"
+
+# Initialize and apply
+terraform init
+terraform plan
+terraform apply
+```
