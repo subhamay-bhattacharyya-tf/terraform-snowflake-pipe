@@ -3,6 +3,14 @@
 ### 🚀 Features
 
 - [**breaking**] Convert warehouse module to pipe module with single-module layout
+
+### 🐛 Bug Fixes
+
+- Enable snowflake_pipe preview feature in examples
+
+### 📚 Documentation
+
+- Update CHANGELOG.md [skip ci]
 ## [1.0.0] - 2026-02-09
 
 ### 🚀 Features
