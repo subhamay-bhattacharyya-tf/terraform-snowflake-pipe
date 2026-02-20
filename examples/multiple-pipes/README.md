@@ -1,21 +1,38 @@
-# Single Pipe Example
+# Multiple Pipes Example
 
-This example demonstrates how to create a single Snowflake pipe using the `snowflake-pipe` module.
+This example demonstrates how to create multiple Snowflake pipes using the `snowflake-pipe` module with a map of configurations.
 
 ## Usage
 
 ```hcl
-module "pipe" {
+module "pipes" {
   source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
 
   pipe_configs = {
-    "my_pipe" = {
-      database       = "MY_DATABASE"
-      schema         = "MY_SCHEMA"
-      name           = "MY_PIPE"
-      copy_statement = "COPY INTO MY_DATABASE.MY_SCHEMA.MY_TABLE FROM @MY_DATABASE.MY_SCHEMA.MY_STAGE"
+    "orders_pipe" = {
+      database       = "ANALYTICS_DB"
+      schema         = "RAW"
+      name           = "ORDERS_PIPE"
+      copy_statement = "COPY INTO ANALYTICS_DB.RAW.ORDERS FROM @ANALYTICS_DB.RAW.S3_STAGE/orders/"
       auto_ingest    = false
-      comment        = "My test pipe"
+      comment        = "Pipe for loading order data from S3"
+    }
+    "customers_pipe" = {
+      database       = "ANALYTICS_DB"
+      schema         = "RAW"
+      name           = "CUSTOMERS_PIPE"
+      copy_statement = "COPY INTO ANALYTICS_DB.RAW.CUSTOMERS FROM @ANALYTICS_DB.RAW.S3_STAGE/customers/"
+      auto_ingest    = false
+      comment        = "Pipe for loading customer data from S3"
+    }
+    "events_pipe" = {
+      database          = "ANALYTICS_DB"
+      schema            = "RAW"
+      name              = "EVENTS_PIPE"
+      copy_statement    = "COPY INTO ANALYTICS_DB.RAW.EVENTS FROM @ANALYTICS_DB.RAW.S3_STAGE/events/"
+      auto_ingest       = true
+      aws_sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:snowflake-events"
+      comment           = "Pipe for auto-ingesting event data from S3"
     }
   }
 }
@@ -31,8 +48,9 @@ module "pipe" {
 ## Prerequisites
 
 - Existing database and schema in Snowflake
-- Existing external stage pointing to cloud storage (S3, Azure Blob, GCS)
-- Target table with schema matching the staged files
+- Existing external stages pointing to cloud storage (S3, Azure Blob, GCS)
+- Target tables with schemas matching the staged files
+- For auto-ingest pipes: AWS SNS topic or storage integration configured (optional)
 
 ## Provider Configuration
 
@@ -78,6 +96,7 @@ provider "snowflake" {
 | pipe_fully_qualified_names | The fully qualified names of the pipes |
 | pipe_notification_channels | The notification channels for the pipes |
 | pipe_owners | The owners of the pipes |
+| pipes | All pipe resources |
 
 ## Running This Example
 
@@ -93,4 +112,28 @@ export TF_VAR_snowflake_private_key="$(cat ~/.snowflake/rsa_key.p8)"
 terraform init
 terraform plan
 terraform apply
+```
+
+## Auto-Ingest Configuration
+
+For pipes with `auto_ingest = true`, you can optionally configure event notifications from your cloud storage:
+
+### AWS S3
+1. Create an SNS topic
+2. Configure S3 bucket event notifications to publish to the SNS topic
+3. Grant Snowflake access to the SNS topic
+4. Use the SNS topic ARN in `aws_sns_topic_arn`
+
+### Using Storage Integration
+Alternatively, use a storage integration:
+```hcl
+"auto_ingest_pipe" = {
+  database       = "MY_DB"
+  schema         = "MY_SCHEMA"
+  name           = "AUTO_PIPE"
+  copy_statement = "COPY INTO MY_DB.MY_SCHEMA.MY_TABLE FROM @MY_DB.MY_SCHEMA.MY_STAGE"
+  auto_ingest    = true
+  integration    = "MY_STORAGE_INTEGRATION"
+  comment        = "Auto-ingest pipe using storage integration"
+}
 ```

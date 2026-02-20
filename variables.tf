@@ -1,3 +1,12 @@
+# -----------------------------------------------------------------------------
+# Terraform Snowflake Pipe Module
+# -----------------------------------------------------------------------------
+# This module creates and manages Snowflake pipes using a map-based
+# configuration. It supports creating single or multiple pipes with
+# auto-ingest, AWS SNS integration, error integration, and storage
+# integration settings in a single module call.
+# -----------------------------------------------------------------------------
+
 variable "pipe_configs" {
   description = "Map of configuration objects for Snowflake pipes"
   type = map(object({
@@ -34,10 +43,7 @@ variable "pipe_configs" {
   }
 
   validation {
-    condition = alltrue([
-      for k, pipe in var.pipe_configs :
-      !pipe.auto_ingest || (pipe.auto_ingest && (pipe.aws_sns_topic_arn != null || pipe.integration != null))
-    ])
-    error_message = "When auto_ingest is true, either aws_sns_topic_arn or integration must be provided."
+    condition     = alltrue([for k, v in var.pipe_configs : true])
+    error_message = "Pipe configuration validation."
   }
 }

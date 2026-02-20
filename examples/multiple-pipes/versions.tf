@@ -1,21 +1,20 @@
+# -----------------------------------------------------------------------------
+# Terraform Snowflake Pipe Module - Multiple Pipes Example
+# -----------------------------------------------------------------------------
+# This example demonstrates how to use the snowflake-pipe module
+# to create multiple Snowflake pipes using a map of configurations.
+# -----------------------------------------------------------------------------
+
 terraform {
   required_version = ">= 1.3.0"
 
   required_providers {
     snowflake = {
-      source  = "Snowflake-Labs/snowflake"
-      version = ">= 0.87.0"
+      source  = "snowflakedb/snowflake"
+      version = ">= 1.0.0"
     }
   }
 }
-
-# Provider configuration using key-pair authentication
-# Required environment variables:
-#   SNOWFLAKE_ORGANIZATION_NAME - Snowflake organization name
-#   SNOWFLAKE_ACCOUNT_NAME      - Snowflake account name
-#   SNOWFLAKE_USER              - Snowflake username
-#   SNOWFLAKE_ROLE              - Snowflake role
-#   SNOWFLAKE_PRIVATE_KEY       - Snowflake private key (PEM format)
 
 provider "snowflake" {
   organization_name = var.snowflake_organization_name
