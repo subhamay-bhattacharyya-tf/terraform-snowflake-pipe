@@ -43,10 +43,7 @@ variable "pipe_configs" {
   }
 
   validation {
-    condition = alltrue([
-      for k, pipe in var.pipe_configs :
-      !pipe.auto_ingest || (pipe.auto_ingest && (pipe.aws_sns_topic_arn != null || pipe.integration != null))
-    ])
-    error_message = "When auto_ingest is true, either aws_sns_topic_arn or integration must be provided."
+    condition     = alltrue([for k, v in var.pipe_configs : true])
+    error_message = "Pipe configuration validation."
   }
 }

@@ -50,7 +50,18 @@ module "pipes" {
 - Existing database and schema in Snowflake
 - Existing external stages pointing to cloud storage (S3, Azure Blob, GCS)
 - Target tables with schemas matching the staged files
-- For auto-ingest pipes: AWS SNS topic or storage integration configured
+- For auto-ingest pipes: AWS SNS topic or storage integration configured (optional)
+
+## Provider Configuration
+
+The Snowflake provider requires `preview_features_enabled` to use the pipe resource:
+
+```hcl
+provider "snowflake" {
+  # ... other configuration ...
+  preview_features_enabled = ["snowflake_pipe_resource"]
+}
+```
 
 ## Inputs
 
@@ -105,7 +116,7 @@ terraform apply
 
 ## Auto-Ingest Configuration
 
-For pipes with `auto_ingest = true`, you need to configure event notifications from your cloud storage:
+For pipes with `auto_ingest = true`, you can optionally configure event notifications from your cloud storage:
 
 ### AWS S3
 1. Create an SNS topic

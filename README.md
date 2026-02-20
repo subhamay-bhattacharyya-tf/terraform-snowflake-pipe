@@ -104,13 +104,13 @@ module "pipe" {
 | Name | Version |
 |------|---------|
 | terraform | >= 1.3.0 |
-| snowflake | >= 0.87.0 |
+| snowflake | >= 1.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| snowflake | >= 0.87.0 |
+| snowflake | >= 1.0.0 |
 
 ## Inputs
 
@@ -150,7 +150,6 @@ The module validates inputs and provides descriptive error messages for:
 - Empty schema name
 - Empty pipe name
 - Empty copy statement
-- Auto-ingest enabled without aws_sns_topic_arn or integration
 
 ## Testing
 

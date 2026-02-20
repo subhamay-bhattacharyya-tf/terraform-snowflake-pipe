@@ -34,6 +34,17 @@ module "pipe" {
 - Existing external stage pointing to cloud storage (S3, Azure Blob, GCS)
 - Target table with schema matching the staged files
 
+## Provider Configuration
+
+The Snowflake provider requires `preview_features_enabled` to use the pipe resource:
+
+```hcl
+provider "snowflake" {
+  # ... other configuration ...
+  preview_features_enabled = ["snowflake_pipe_resource"]
+}
+```
+
 ## Inputs
 
 | Name | Description | Type | Required |
@@ -44,6 +55,20 @@ module "pipe" {
 | snowflake_user | Snowflake username | `string` | yes |
 | snowflake_role | Snowflake role | `string` | no |
 | snowflake_private_key | Snowflake private key for key-pair authentication | `string` | yes |
+
+## pipe_configs Object Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| database | string | - | Database where the pipe resides (required) |
+| schema | string | - | Schema where the pipe resides (required) |
+| name | string | - | Pipe identifier (required) |
+| copy_statement | string | - | COPY statement for the pipe (required) |
+| auto_ingest | bool | false | Enable auto-ingest for the pipe |
+| aws_sns_topic_arn | string | null | AWS SNS topic ARN for auto-ingest notifications |
+| error_integration | string | null | Name of the notification integration for error notifications |
+| integration | string | null | Name of the storage integration for auto-ingest |
+| comment | string | null | Description of the pipe |
 
 ## Outputs
 
