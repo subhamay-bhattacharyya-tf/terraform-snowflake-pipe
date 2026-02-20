@@ -11,6 +11,8 @@
 ### 📚 Documentation
 
 - Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update Snowflake provider version and pipe configuration
 ## [1.0.0] - 2026-02-09
 
 ### 🚀 Features
