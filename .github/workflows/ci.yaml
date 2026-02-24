@@ -33,7 +33,7 @@ jobs:
       TF_VERSION: ${{ vars.TERRAFORM_VERSION || '1.3.0' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -65,7 +65,7 @@ jobs:
           - examples/multiple-pipes
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -92,7 +92,7 @@ jobs:
       GO_VERSION: ${{ vars.GO_VERSION || '1.21' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -158,7 +158,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -194,7 +194,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
