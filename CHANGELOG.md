@@ -1,3 +1,13 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [2.1.0](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe/compare/v2.0.0...v2.1.0) (2026-02-24)
+
+### Features
+
+* add optional grants attribute for role-based pipe permissions ([3d761f8](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe/commit/3d761f880ca7687a2b070844c362726c227bedc1))
+
 ## [unreleased]
 
 ### 🚀 Features
