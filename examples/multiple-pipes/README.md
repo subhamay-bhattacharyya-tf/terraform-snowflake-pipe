@@ -24,6 +24,12 @@ module "pipes" {
       copy_statement = "COPY INTO ANALYTICS_DB.RAW.CUSTOMERS FROM @ANALYTICS_DB.RAW.S3_STAGE/customers/"
       auto_ingest    = false
       comment        = "Pipe for loading customer data from S3"
+      grants = [
+        {
+          role_name  = "DATA_ANALYST"
+          privileges = ["MONITOR"]
+        }
+      ]
     }
     "events_pipe" = {
       database          = "ANALYTICS_DB"
@@ -33,6 +39,12 @@ module "pipes" {
       auto_ingest       = true
       aws_sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:snowflake-events"
       comment           = "Pipe for auto-ingesting event data from S3"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        }
+      ]
     }
   }
 }
@@ -87,6 +99,14 @@ provider "snowflake" {
 | error_integration | string | null | Name of the notification integration for error notifications |
 | integration | string | null | Name of the storage integration for auto-ingest |
 | comment | string | null | Description of the pipe |
+| grants | list(object) | [] | List of role grants for the pipe |
+
+### grants Object Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| role_name | string | Name of the role to grant privileges to |
+| privileges | list(string) | List of privileges to grant (MONITOR, OPERATE) |
 
 ## Outputs
 
@@ -97,6 +117,7 @@ provider "snowflake" {
 | pipe_notification_channels | The notification channels for the pipes |
 | pipe_owners | The owners of the pipes |
 | pipes | All pipe resources |
+| pipe_grants | All pipe grant resources |
 
 ## Running This Example
 

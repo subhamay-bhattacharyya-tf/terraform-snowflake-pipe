@@ -21,3 +21,32 @@ resource "snowflake_pipe" "this" {
   integration       = each.value.integration
   comment           = each.value.comment
 }
+
+# Flatten grants for all pipes into a single map for iteration
+locals {
+  pipe_grants = flatten([
+    for pipe_key, pipe in var.pipe_configs : [
+      for grant in pipe.grants : {
+        pipe_key   = pipe_key
+        role_name  = grant.role_name
+        privileges = grant.privileges
+      }
+    ]
+  ])
+
+  pipe_grants_map = {
+    for grant in local.pipe_grants :
+    "${grant.pipe_key}_${grant.role_name}" => grant
+  }
+}
+
+resource "snowflake_grant_privileges_to_account_role" "pipe_grants" {
+  for_each = local.pipe_grants_map
+
+  privileges        = each.value.privileges
+  account_role_name = each.value.role_name
+  on_schema_object {
+    object_type = "PIPE"
+    object_name = snowflake_pipe.this[each.value.pipe_key].fully_qualified_name
+  }
+}

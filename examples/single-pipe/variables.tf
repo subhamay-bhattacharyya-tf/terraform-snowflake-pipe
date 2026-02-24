@@ -17,6 +17,10 @@ variable "pipe_configs" {
     error_integration = optional(string, null)
     integration       = optional(string, null)
     comment           = optional(string, null)
+    grants = optional(list(object({
+      role_name  = string
+      privileges = list(string)
+    })), [])
   }))
   default = {}
 }

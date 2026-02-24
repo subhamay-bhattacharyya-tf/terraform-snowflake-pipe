@@ -12,6 +12,7 @@ A Terraform module for creating and managing Snowflake pipes using a map of conf
 - Outputs keyed by pipe identifier for easy reference
 - Support for auto-ingest with AWS SNS or storage integration
 - Support for error integration configuration
+- Support for role-based grants on pipes
 
 ## Usage
 
@@ -94,6 +95,35 @@ module "pipe" {
 }
 ```
 
+### Pipe with Role Grants
+
+```hcl
+module "pipe" {
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
+
+  pipe_configs = {
+    "my_pipe" = {
+      database       = "MY_DATABASE"
+      schema         = "MY_SCHEMA"
+      name           = "MY_PIPE"
+      copy_statement = "COPY INTO MY_DATABASE.MY_SCHEMA.MY_TABLE FROM @MY_DATABASE.MY_SCHEMA.MY_STAGE"
+      auto_ingest    = false
+      comment        = "Pipe with role grants"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        },
+        {
+          role_name  = "DATA_ANALYST"
+          privileges = ["MONITOR"]
+        }
+      ]
+    }
+  }
+}
+```
+
 ## Examples
 
 - [Single Pipe](examples/single-pipe) - Create a single pipe
@@ -131,6 +161,19 @@ module "pipe" {
 | error_integration | string | null | Name of the notification integration for error notifications |
 | integration | string | null | Name of the storage integration for auto-ingest |
 | comment | string | null | Description of the pipe |
+| grants | list(object) | [] | List of role grants for the pipe |
+
+### grants Object Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| role_name | string | Name of the role to grant privileges to |
+| privileges | list(string) | List of privileges to grant (e.g., MONITOR, OPERATE) |
+
+### Valid Pipe Privileges
+
+- MONITOR - View pipe status and history
+- OPERATE - Start, stop, and refresh the pipe
 
 ## Outputs
 
@@ -141,6 +184,7 @@ module "pipe" {
 | pipe_notification_channels | Map of notification channels for SNS integration |
 | pipe_owners | Map of pipe owners |
 | pipes | All pipe resources |
+| pipe_grants | All pipe grant resources |
 
 ## Validation
 
