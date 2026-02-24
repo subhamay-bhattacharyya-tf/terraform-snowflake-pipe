@@ -31,3 +31,8 @@ output "pipes" {
   description = "All pipe resources."
   value       = snowflake_pipe.this
 }
+
+output "pipe_grants" {
+  description = "All pipe grant resources."
+  value       = snowflake_grant_privileges_to_account_role.pipe_grants
+}

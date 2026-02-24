@@ -1,4 +1,4 @@
-// File: test/single_pipe_test.go
+// File: test/pipe_grants_test.go
 package test
 
 import (
@@ -13,9 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestSinglePipe tests creating a single pipe via the module
-// Note: This test requires an external stage. Internal stages do not support pipes.
-func TestSinglePipe(t *testing.T) {
+// TestPipeWithGrants tests creating a pipe with role grants
+func TestPipeWithGrants(t *testing.T) {
 	t.Parallel()
 
 	retrySleep := 5 * time.Second
@@ -25,21 +24,20 @@ func TestSinglePipe(t *testing.T) {
 	tableName := "TEST_TABLE"
 	stageName := "TEST_STAGE"
 	pipeName := fmt.Sprintf("TT_PIPE_%s", unique)
+	roleName := fmt.Sprintf("TT_ROLE_%s", unique)
 
-	// Setup: Create database, schema, table, and external stage
+	// Setup: Create database, schema, table, external stage, and role
 	db := openSnowflake(t)
 	createTestDatabase(t, db, dbName)
 	createTestSchema(t, db, dbName, schemaName)
 	createTestTable(t, db, dbName, schemaName, tableName)
-	
-	// Create an external stage using a public S3 bucket for testing
-	// This uses Snowflake's sample data bucket which is publicly accessible
 	createExternalStage(t, db, dbName, schemaName, stageName)
+	createTestRole(t, db, roleName)
 	_ = db.Close()
 
 	tfDir := "../examples/single-pipe"
 
-	copyStatement := fmt.Sprintf("COPY INTO %s.%s.%s FROM @%s.%s.%s FILE_FORMAT = (TYPE = CSV)", 
+	copyStatement := fmt.Sprintf("COPY INTO %s.%s.%s FROM @%s.%s.%s FILE_FORMAT = (TYPE = CSV)",
 		dbName, schemaName, tableName, dbName, schemaName, stageName)
 
 	pipeConfigs := map[string]interface{}{
@@ -49,8 +47,13 @@ func TestSinglePipe(t *testing.T) {
 			"name":           pipeName,
 			"copy_statement": copyStatement,
 			"auto_ingest":    false,
-			"comment":        "Terratest single pipe test",
-			"grants":         []interface{}{},
+			"comment":        "Terratest pipe with grants test",
+			"grants": []interface{}{
+				map[string]interface{}{
+					"role_name":  roleName,
+					"privileges": []interface{}{"MONITOR", "OPERATE"},
+				},
+			},
 		},
 	}
 
@@ -69,9 +72,10 @@ func TestSinglePipe(t *testing.T) {
 
 	defer func() {
 		terraform.Destroy(t, tfOptions)
-		// Cleanup: Drop test database
+		// Cleanup: Drop test database and role
 		db := openSnowflake(t)
 		dropTestDatabase(t, db, dbName)
+		dropTestRole(t, db, roleName)
 		_ = db.Close()
 	}()
 
@@ -82,12 +86,14 @@ func TestSinglePipe(t *testing.T) {
 	db = openSnowflake(t)
 	defer func() { _ = db.Close() }()
 
+	// Verify pipe exists
 	exists := pipeExists(t, db, dbName, schemaName, pipeName)
 	require.True(t, exists, "Expected pipe %q to exist in Snowflake", pipeName)
 
-	props := fetchPipeProps(t, db, dbName, schemaName, pipeName)
-	require.Equal(t, pipeName, props.Name)
-	require.Equal(t, dbName, props.DatabaseName)
-	require.Equal(t, schemaName, props.SchemaName)
-	require.Contains(t, props.Comment, "Terratest single pipe test")
+	// Verify grants exist
+	hasMonitor := roleHasPipePrivilege(t, db, roleName, dbName, schemaName, pipeName, "MONITOR")
+	require.True(t, hasMonitor, "Expected role %q to have MONITOR privilege on pipe %q", roleName, pipeName)
+
+	hasOperate := roleHasPipePrivilege(t, db, roleName, dbName, schemaName, pipeName, "OPERATE")
+	require.True(t, hasOperate, "Expected role %q to have OPERATE privilege on pipe %q", roleName, pipeName)
 }

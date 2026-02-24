@@ -48,6 +48,7 @@ func TestMultiplePipes(t *testing.T) {
 			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.ORDERS FROM @%s.%s.ORDERS_STAGE FILE_FORMAT = (TYPE = CSV)", dbName, schemaName, dbName, schemaName),
 			"auto_ingest":    false,
 			"comment":        "Terratest orders pipe",
+			"grants":         []interface{}{},
 		},
 		"customers_pipe": map[string]interface{}{
 			"database":       dbName,
@@ -56,6 +57,7 @@ func TestMultiplePipes(t *testing.T) {
 			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.CUSTOMERS FROM @%s.%s.CUSTOMERS_STAGE FILE_FORMAT = (TYPE = CSV)", dbName, schemaName, dbName, schemaName),
 			"auto_ingest":    false,
 			"comment":        "Terratest customers pipe",
+			"grants":         []interface{}{},
 		},
 		"events_pipe": map[string]interface{}{
 			"database":       dbName,
@@ -64,6 +66,7 @@ func TestMultiplePipes(t *testing.T) {
 			"copy_statement": fmt.Sprintf("COPY INTO %s.%s.EVENTS FROM @%s.%s.EVENTS_STAGE FILE_FORMAT = (TYPE = CSV)", dbName, schemaName, dbName, schemaName),
 			"auto_ingest":    false,
 			"comment":        "Terratest events pipe",
+			"grants":         []interface{}{},
 		},
 	}
 

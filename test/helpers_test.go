@@ -203,3 +203,68 @@ func mustEnv(t *testing.T, key string) string {
 func escapeLike(s string) string {
 	return strings.ReplaceAll(s, "'", "''")
 }
+
+func createTestRole(t *testing.T, db *sql.DB, roleName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("CREATE ROLE IF NOT EXISTS %s", roleName))
+	require.NoError(t, err, "Failed to create test role")
+}
+
+func dropTestRole(t *testing.T, db *sql.DB, roleName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("DROP ROLE IF EXISTS %s", roleName))
+	require.NoError(t, err, "Failed to drop test role")
+}
+
+func roleHasPipePrivilege(t *testing.T, db *sql.DB, roleName, database, schema, pipeName, privilege string) bool {
+	t.Helper()
+
+	q := fmt.Sprintf("SHOW GRANTS ON PIPE %s.%s.%s", database, schema, pipeName)
+	rows, err := db.Query(q)
+	require.NoError(t, err)
+	defer func() { _ = rows.Close() }()
+
+	cols, err := rows.Columns()
+	require.NoError(t, err)
+
+	// Find column indices for privilege and grantee_name
+	privIdx, granteeIdx := -1, -1
+	for i, col := range cols {
+		switch col {
+		case "privilege":
+			privIdx = i
+		case "grantee_name":
+			granteeIdx = i
+		}
+	}
+
+	for rows.Next() {
+		values := make([]interface{}, len(cols))
+		valuePtrs := make([]interface{}, len(cols))
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
+
+		err = rows.Scan(valuePtrs...)
+		require.NoError(t, err)
+
+		getString := func(idx int) string {
+			if idx == -1 || values[idx] == nil {
+				return ""
+			}
+			if s, ok := values[idx].(string); ok {
+				return s
+			}
+			if b, ok := values[idx].([]byte); ok {
+				return string(b)
+			}
+			return fmt.Sprintf("%v", values[idx])
+		}
+
+		if strings.EqualFold(getString(granteeIdx), roleName) && strings.EqualFold(getString(privIdx), privilege) {
+			return true
+		}
+	}
+
+	return false
+}

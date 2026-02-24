@@ -21,6 +21,31 @@ module "pipe" {
 }
 ```
 
+### With Role Grants
+
+```hcl
+module "pipe" {
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-pipe"
+
+  pipe_configs = {
+    "my_pipe" = {
+      database       = "MY_DATABASE"
+      schema         = "MY_SCHEMA"
+      name           = "MY_PIPE"
+      copy_statement = "COPY INTO MY_DATABASE.MY_SCHEMA.MY_TABLE FROM @MY_DATABASE.MY_SCHEMA.MY_STAGE"
+      auto_ingest    = false
+      comment        = "My test pipe with grants"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        }
+      ]
+    }
+  }
+}
+```
+
 ## Requirements
 
 | Name | Version |
@@ -69,6 +94,14 @@ provider "snowflake" {
 | error_integration | string | null | Name of the notification integration for error notifications |
 | integration | string | null | Name of the storage integration for auto-ingest |
 | comment | string | null | Description of the pipe |
+| grants | list(object) | [] | List of role grants for the pipe |
+
+### grants Object Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| role_name | string | Name of the role to grant privileges to |
+| privileges | list(string) | List of privileges to grant (MONITOR, OPERATE) |
 
 ## Outputs
 
@@ -78,6 +111,7 @@ provider "snowflake" {
 | pipe_fully_qualified_names | The fully qualified names of the pipes |
 | pipe_notification_channels | The notification channels for the pipes |
 | pipe_owners | The owners of the pipes |
+| pipe_grants | All pipe grant resources |
 
 ## Running This Example
 
